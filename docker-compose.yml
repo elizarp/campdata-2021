@@ -1,0 +1,38 @@
+version: '3.3'
+services:
+  nifi:
+    container_name: campdata-2021-nifi
+    image: apache/nifi:1.11.4
+    user: root
+    hostname: campdata-nifi
+    volumes:
+      - ./mysql-driver:/opt/mysql-driver
+      - ./data:/tmp/data
+    ports:
+      - 8091:8091 
+      - 8092:8092
+    environment:
+      - NIFI_WEB_HTTP_PORT=8091
+      - NIFI_JVM_HEAP_INIT=1g
+      - NIFI_JVM_HEAP_MAX=2g
+    depends_on:
+      - 'mysqldb'
+  mysqldb:
+    container_name: campdata-2021-mysqldb
+    image: mysql
+    command: --default-authentication-plugin=mysql_native_password
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpassword
+      MYSQL_DATABASE: campdata-db
+      MYSQL_USER: user
+      MYSQL_PASSWORD: password
+    volumes:
+      - ./init:/docker-entrypoint-initdb.d
+  adminer:
+    container_name: campdata-2021-mysql-adminer
+    image: adminer
+    restart: always
+    ports:
+      - 8080:8080
+
